@@ -73,7 +73,9 @@ class P2PNode:
         
         for pid, peer_data in peers_to_check:
             ws = peer_data.get("ws")
-            if not ws or ws.closed:
+            # Handle different websockets versions (some don't have .closed)
+            is_closed = getattr(ws, "closed", False) or not getattr(ws, "open", True)
+            if not ws or is_closed:
                 continue
                 
             # 1. Latency Check (Ping)
