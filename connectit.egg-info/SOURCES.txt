@@ -4,6 +4,7 @@ README.md
 pyproject.toml
 connectit/__init__.py
 connectit/__main__.py
+connectit/api.py
 connectit/datasets.py
 connectit/dht.py
 connectit/hf.py
@@ -14,7 +15,9 @@ connectit/p2p.py
 connectit/p2p_runtime.py
 connectit/pieces.py
 connectit/protocol.py
+connectit/services.py
 connectit/utils.py
+examples/api_demo.py
 examples/p2p_request_demo.py
 scripts/debug_generation.py
 scripts/debug_p2p_request.py
