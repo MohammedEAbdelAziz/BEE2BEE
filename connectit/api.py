@@ -76,6 +76,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ConnectIT Node API", lifespan=lifespan)
 
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class PeerInfo(BaseModel):
     peer_id: str
     addr: str
@@ -123,6 +132,23 @@ async def connect_peer(addr: str):
         else:
             await node._connect_peer(addr)
         return {"status": "connected", "addr": addr}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+class ChatRequest(BaseModel):
+    provider_id: str
+    prompt: str
+    model: Optional[str] = None
+    max_new_tokens: Optional[int] = 64
+
+@app.post("/chat")
+async def chat(req: ChatRequest):
+    if not node:
+        return {"error": "Node not running"}
+    try:
+        # returns {"text": "...", "tokens": ...}
+        res = await node.request_generation(req.provider_id, req.prompt, req.max_new_tokens, req.model)
+        return {"status": "ok", "result": res}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

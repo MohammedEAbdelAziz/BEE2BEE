@@ -46,3 +46,8 @@ Thumbs.db
 /.connectit/
 *.log
 
+
+# Allow desktop-app files
+!desktop-app/**/*.ts
+!desktop-app/**/*.tsx
+!desktop-app/**/lib/

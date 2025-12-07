@@ -13,6 +13,7 @@ from .p2p import parse_join_link, sha256_hex_bytes
 from .utils import new_id, is_colab
 from .pieces import split_pieces, piece_hashes
 from .services import BaseService, HFService, ServiceError
+from .nat import try_upnp_map
 
 # In Colab/Jupyter, rich auto-detects HTML output which often buffers or fails in subprocesses.
 # We force terminal mode to ensure we get raw text streaming.
@@ -118,6 +119,19 @@ class P2PNode:
         elif self.host == "0.0.0.0":
             from .utils import get_lan_ip
             display_host = get_lan_ip()
+            
+            # Try UPnP only if we are on 0.0.0.0 (likely local dev / home router)
+            # Run in executor to not block startup
+            console.log(f"[dim]Attempting UPnP Port Mapping for port {self.port}...[/dim]")
+            loop = asyncio.get_running_loop()
+            upnp_ok, ext_ip = await loop.run_in_executor(None, try_upnp_map, self.port)
+            
+            if upnp_ok and ext_ip:
+                console.log(f"[green]UPnP Success:[/green] Port {self.port} mapped on Router -> Public IP: {ext_ip}")
+                # We can optionally hint that external access is possible
+            else:
+                console.log(f"[dim yellow]UPnP Mapping Failed (or not supported by router). Manual forwarding needed.[/dim yellow]")
+
         else:
             display_host = self.host
             
